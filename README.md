@@ -20,3 +20,13 @@ Database Systems — Department of Artificial Intelligence, ITU Lahore
 - Python programming fundamentals
 - Web development basics (HTML & CSS)
 - Core concepts of Artificial Intelligence
+
+## What I Learned About GitHub in This Lab
+- GitHub is a platform for hosting and managing code using 
+  version control, allowing developers to track every change 
+  made to a project over time.
+- Commits act as checkpoints — each one records what changed, 
+  when, and why, making it easy to review or revert work.
+- A well-written README is the first thing anyone sees in a 
+  repository and is essential for communicating the purpose 
+  and context of a project clearly.
