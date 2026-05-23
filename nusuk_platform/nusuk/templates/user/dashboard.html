@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard{% endblock %}
+{% block content %}
+
+<div class="container page-wrapper">
+
+  <!-- Page Header -->
+  <div class="page-header stagger-children">
+    <div>
+      <p class="page-eyebrow">Pilgrim Dashboard</p>
+      <h1>Assalamu Alaikum, {{ pilgrim.first_name }}</h1>
+      <p class="page-sub">{{ pilgrim.country_name }} · Passport: {{ pilgrim.passport_number }}</p>
+    </div>
+    <div class="header-status">
+      <span class="badge badge-{{ pilgrim.registration_status.lower() }}">{{ pilgrim.registration_status }}</span>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stats-grid stagger-children">
+    <div class="stat-card">
+      <div class="stat-icon">📋</div>
+      <div class="stat-value">{{ active_bookings }}</div>
+      <div class="stat-label">Active Bookings</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🎫</div>
+      <div class="stat-value">{{ active_permits }}</div>
+      <div class="stat-label">Active Permits</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🕌</div>
+      <div class="stat-value">{{ hajj_progress | length }}</div>
+      <div class="stat-label">Hajj Phases Tracked</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-value">{{ hajj_progress | selectattr('status','eq','Completed') | list | length }}</div>
+      <div class="stat-label">Phases Completed</div>
+    </div>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="dash-grid">
+
+    <!-- Quran Verse -->
+    <div class="dash-col-full">
+      <div class="verse-widget">
+        <div class="verse-ornament">❝</div>
+        <p class="verse-arabic">{{ verse.arabic }}</p>
+        <p class="verse-trans">{{ verse.translation }}</p>
+        <p class="verse-ref">— {{ verse.reference }}</p>
+        <button class="btn-outline-gold btn-sm verse-refresh" onclick="refreshVerse()">New Verse ✦</button>
+      </div>
+    </div>
+
+    <!-- Adhan Prayer Times -->
+    <div class="dash-col">
+      <div class="card adhan-card">
+        <div class="card-header-row">
+          <h3 class="card-title"><span class="card-icon">🕐</span> Prayer Times</h3>
+        </div>
+        <div class="adhan-tabs" id="adhanTabs">
+          <button class="adhan-tab active" data-loc="current">My Location</button>
+          <button class="adhan-tab" data-loc="makkah">Makkah</button>
+          <button class="adhan-tab" data-loc="madinah">Madinah</button>
+        </div>
+        <div id="prayerTimesContainer">
+          <p class="text-muted" style="font-size:.85rem;padding:.5rem 0">Loading prayer times…</p>
+        </div>
+        <p class="adhan-date" id="adhanDate"></p>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="dash-col">
+      <div class="card">
+        <div class="card-header-row">
+          <h3 class="card-title"><span class="card-icon">⚡</span> Quick Actions</h3>
+        </div>
+        <div class="quick-actions">
+          <a href="{{ url_for('user_bookings') }}" class="quick-action-btn">
+            <span>🏨</span>
+            <div>
+              <div class="qa-title">New Booking</div>
+              <div class="qa-sub">Hotel, transport &amp; guide</div>
+            </div>
+          </a>
+          <a href="{{ url_for('user_permits') }}" class="quick-action-btn">
+            <span>🎫</span>
+            <div>
+              <div class="qa-title">Request Permit</div>
+              <div class="qa-sub">Book a holy site slot</div>
+            </div>
+          </a>
+          <a href="{{ url_for('user_profile') }}" class="quick-action-btn">
+            <span>👤</span>
+            <div>
+              <div class="qa-title">My Profile</div>
+              <div class="qa-sub">Health, visa, special needs</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hajj Phase Progress -->
+    <div class="dash-col-full">
+      <div class="card">
+        <div class="card-header-row">
+          <h3 class="card-title"><span class="card-icon">🕌</span> Hajj Phase Progress</h3>
+        </div>
+        {% if hajj_progress %}
+        <div class="phase-track">
+          {% for phase in hajj_progress %}
+          <div class="phase-node {{ phase.status.lower().replace(' ','_') }}">
+            <div class="phase-bubble">
+              {% if phase.status == 'Completed' %}✓
+              {% elif phase.status == 'In_Progress' %}●
+              {% else %}{{ phase.phase_order }}{% endif %}
+            </div>
+            <div class="phase-info">
+              <div class="phase-name">{{ phase.phase_name }}</div>
+              <div class="phase-status-tag">{{ phase.status.replace('_',' ') }}</div>
+            </div>
+            {% if not loop.last %}<div class="phase-connector"></div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <div class="empty-icon">🕌</div>
+          <p>No Hajj phases tracked yet. Your progress will appear here once registered for Hajj.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div><!-- /dash-grid -->
+</div>
+
+<script>
+async function refreshVerse() {
+  try {
+    const r = await fetch('/api/verse');
+    const v = await r.json();
+    document.querySelector('.verse-arabic').textContent = v.arabic;
+    document.querySelector('.verse-trans').textContent  = v.translation;
+    document.querySelector('.verse-ref').textContent    = '— ' + v.reference;
+  } catch(e) {}
+}
+document.getElementById('adhanDate').textContent = new Date().toLocaleDateString('en-US',
+  {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+</script>
+{% endblock %}

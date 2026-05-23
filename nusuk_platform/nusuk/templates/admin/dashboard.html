@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+
+<div class="container page-wrapper">
+  <div class="page-header stagger-children">
+    <div>
+      <p class="page-eyebrow">Administrator</p>
+      <h1>Platform Overview</h1>
+    </div>
+    <div class="header-actions">
+      <a href="{{ url_for('admin_guides') }}"  class="btn-outline-gold btn-sm">＋ Add Guide</a>
+      <a href="{{ url_for('admin_sites') }}"   class="btn-outline-gold btn-sm">＋ Holy Site</a>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stats-grid stagger-children">
+    <div class="stat-card">
+      <div class="stat-icon">🤲</div>
+      <div class="stat-value">{{ stats.pilgrims }}</div>
+      <div class="stat-label">Total Pilgrims</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📋</div>
+      <div class="stat-value">{{ stats.bookings }}</div>
+      <div class="stat-label">Active Bookings</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🎫</div>
+      <div class="stat-value">{{ stats.permits }}</div>
+      <div class="stat-label">Active Permits</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-value">{{ "%.0f"|format(stats.revenue / 1000) }}K</div>
+      <div class="stat-label">Revenue (SAR)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🧭</div>
+      <div class="stat-value">{{ stats.guides }}</div>
+      <div class="stat-label">Active Guides</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-value">{{ stats.users }}</div>
+      <div class="stat-label">Platform Users</div>
+    </div>
+  </div>
+
+  <!-- Two columns -->
+  <div class="admin-dash-grid stagger-children">
+
+    <!-- Recent Bookings -->
+    <div class="card">
+      <div class="card-header-row">
+        <h3 class="card-title"><span class="card-icon">📋</span> Recent Bookings</h3>
+        <a href="{{ url_for('admin_bookings') }}" class="card-link">View All →</a>
+      </div>
+      <div class="table-wrapper" style="border:none;box-shadow:none">
+        <table>
+          <thead><tr>
+            <th>Reference</th><th>Pilgrim</th><th>Status</th><th>Amount</th>
+          </tr></thead>
+          <tbody>
+          {% for bk in recent_bookings %}
+          <tr>
+            <td class="mono text-gold">{{ bk.booking_reference }}</td>
+            <td>{{ bk.first_name }} {{ bk.last_name }}</td>
+            <td><span class="badge badge-{{ bk.status.lower().replace(' ','_') }}">{{ bk.status }}</span></td>
+            <td>SAR {{ "%.0f"|format(bk.total_price) }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Users -->
+    <div class="card">
+      <div class="card-header-row">
+        <h3 class="card-title"><span class="card-icon">👥</span> Recent Users</h3>
+        <a href="{{ url_for('admin_users') }}" class="card-link">Manage →</a>
+      </div>
+      <div class="table-wrapper" style="border:none;box-shadow:none">
+        <table>
+          <thead><tr>
+            <th>Username</th><th>Role</th><th>Active</th>
+          </tr></thead>
+          <tbody>
+          {% for u in recent_users %}
+          <tr>
+            <td>
+              <div>{{ u.username }}</div>
+              <div style="font-size:.78rem;color:var(--text-muted)">{{ u.email }}</div>
+            </td>
+            <td><span class="role-badge role-{{ u.role }}">{{ u.role.upper() }}</span></td>
+            <td>
+              {% if u.is_active %}
+              <span style="color:#4A8C4A">● Active</span>
+              {% else %}
+              <span style="color:#C84A4A">○ Inactive</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /admin-dash-grid -->
+
+  <!-- Admin Quick Links -->
+  <div class="admin-quick-links stagger-children" style="margin-top:2rem">
+    <a href="{{ url_for('admin_users') }}" class="admin-ql-card">
+      <span class="ql-icon">👥</span>
+      <span class="ql-label">Manage Users</span>
+      <span class="ql-arrow">→</span>
+    </a>
+    <a href="{{ url_for('admin_guides') }}" class="admin-ql-card">
+      <span class="ql-icon">🧭</span>
+      <span class="ql-label">Manage Guides</span>
+      <span class="ql-arrow">→</span>
+    </a>
+    <a href="{{ url_for('admin_sites') }}" class="admin-ql-card">
+      <span class="ql-icon">🕌</span>
+      <span class="ql-label">Holy Sites</span>
+      <span class="ql-arrow">→</span>
+    </a>
+    <a href="{{ url_for('admin_bookings') }}" class="admin-ql-card">
+      <span class="ql-icon">📋</span>
+      <span class="ql-label">All Bookings</span>
+      <span class="ql-arrow">→</span>
+    </a>
+  </div>
+
+</div>
+{% endblock %}

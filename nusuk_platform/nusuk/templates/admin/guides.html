@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Guides Management{% endblock %}
+{% block content %}
+
+<div class="container page-wrapper">
+  <div class="page-header">
+    <div>
+      <p class="page-eyebrow">Administrator</p>
+      <h1>Guides Management</h1>
+      <p class="page-sub">{{ guides | length }} guides registered</p>
+    </div>
+    <button class="btn-gold" onclick="Modal.open('addGuideModal')">＋ Add Guide</button>
+  </div>
+
+  <div class="table-wrapper stagger-children">
+    <table>
+      <thead><tr>
+        <th>Guide</th><th>Nationality</th><th>Languages</th><th>Rating</th><th>Pilgrims</th><th>Status</th><th></th>
+      </tr></thead>
+      <tbody>
+      {% for g in guides %}
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar-sm" style="background:{{ 'var(--gold-dark)' if g.gender=='Male' else '#6B3FA0' }}">
+              {{ g.first_name[0] }}
+            </div>
+            <div>
+              <div class="user-name">{{ g.first_name }} {{ g.last_name }}</div>
+              <div class="user-email">{{ g.email }}</div>
+              <div class="user-email">{{ g.phone_number }}</div>
+            </div>
+          </div>
+        </td>
+        <td>{{ g.country_name }}</td>
+        <td style="font-size:.85rem;max-width:160px">{{ g.languages }}</td>
+        <td>
+          <div class="stars-row">
+            {% set r = g.rating_average | float %}
+            {% for i in range(1,6) %}
+            <span style="color:{{ 'var(--gold)' if i <= r else 'var(--border)' }}">★</span>
+            {% endfor %}
+            <span class="ml-1" style="font-size:.8rem;color:var(--text-muted)">{{ "%.2f"|format(g.rating_average) }}</span>
+          </div>
+        </td>
+        <td>{{ g.total_pilgrim_count }}</td>
+        <td>
+          {% if g.is_active %}
+          <span class="badge badge-active">Active</span>
+          {% else %}
+          <span class="badge badge-cancelled">Inactive</span>
+          {% endif %}
+        </td>
+        <td>
+          <form method="POST" action="{{ url_for('admin_toggle_guide', gid=g.guide_id) }}">
+            <button type="submit" class="{{ 'btn-danger' if g.is_active else 'btn-success' }} btn-sm">
+              {{ 'Deactivate' if g.is_active else 'Activate' }}
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add Guide Modal -->
+<div class="modal-overlay" id="addGuideModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">🧭 Add New Guide</h3>
+      <button class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <form method="POST" action="{{ url_for('admin_add_guide') }}" id="guideForm">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input class="form-control" type="text" name="first_name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input class="form-control" type="text" name="last_name" required>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">Gender</label>
+            <select class="form-control" name="gender" required>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nationality</label>
+            <select class="form-control" name="nationality_id" required>
+              {% for n in nationalities %}
+              <option value="{{ n.nationality_id }}">{{ n.country_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">License Number</label>
+          <input class="form-control" type="text" name="license_number" placeholder="SA-GD-XXXXX" required>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input class="form-control" type="tel" name="phone_number" placeholder="+966 50 XXXXXXX" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-control" type="email" name="email" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Languages (comma separated)</label>
+          <input class="form-control" type="text" name="languages" placeholder="Arabic, English, Urdu" required>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-outline-gold" onclick="Modal.close('addGuideModal')">Cancel</button>
+      <button type="submit" form="guideForm" class="btn-gold">Add Guide</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

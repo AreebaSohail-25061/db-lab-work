@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}NUSUK{% endblock %} — Sacred Journey Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+{% if session.get('account_id') %}
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="{{ url_for('dashboard') }}" class="nav-brand">
+      <span class="brand-crescent">☽</span>
+      <span class="brand-name">NUSUK</span>
+    </a>
+    <div class="nav-links">
+      {% if session.get('role') == 'user' %}
+        <a href="{{ url_for('user_dashboard') }}"  class="nav-link {% if request.endpoint=='user_dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="{{ url_for('user_profile') }}"    class="nav-link {% if request.endpoint=='user_profile' %}active{% endif %}">Profile</a>
+        <a href="{{ url_for('user_bookings') }}"   class="nav-link {% if request.endpoint=='user_bookings' %}active{% endif %}">Bookings</a>
+        <a href="{{ url_for('user_permits') }}"    class="nav-link {% if request.endpoint=='user_permits' %}active{% endif %}">Permits</a>
+      {% elif session.get('role') == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}" class="nav-link {% if request.endpoint=='admin_dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="{{ url_for('admin_users') }}"     class="nav-link {% if request.endpoint=='admin_users' %}active{% endif %}">Users</a>
+        <a href="{{ url_for('admin_guides') }}"    class="nav-link {% if request.endpoint=='admin_guides' %}active{% endif %}">Guides</a>
+        <a href="{{ url_for('admin_sites') }}"     class="nav-link {% if request.endpoint=='admin_sites' %}active{% endif %}">Holy Sites</a>
+        <a href="{{ url_for('admin_bookings') }}"  class="nav-link {% if request.endpoint=='admin_bookings' %}active{% endif %}">Bookings</a>
+        <a href="{{ url_for('admin_permits') }}"   class="nav-link {% if request.endpoint=='admin_permits' %}active{% endif %}">Permits</a>
+        <a href="{{ url_for('admin_hajj') }}" class="nav-link {% if request.endpoint=='admin_hajj' %}active{% endif %}">Hajj Tracker</a>
+      {% elif session.get('role') == 'analyst' %}
+        <a href="{{ url_for('analyst_dashboard') }}" class="nav-link active">Analytics</a>
+      {% endif %}
+    </div>
+    <div class="nav-right">
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+        <span class="icon-sun">☀</span><span class="icon-moon">☾</span>
+      </button>
+      <div class="nav-user-pill">
+        <span class="role-badge role-{{ session.get('role','user') }}">{{ session.get('role','').upper() }}</span>
+        <span class="nav-username">{{ session.get('username','') }}</span>
+      </div>
+      <a href="{{ url_for('logout') }}" class="btn-signout">Sign Out</a>
+    </div>
+  </div>
+</nav>
+{% else %}
+<nav class="navbar navbar-landing">
+  <div class="nav-container">
+    <a href="{{ url_for('index') }}" class="nav-brand">
+      <span class="brand-crescent">☽</span>
+      <span class="brand-name">NUSUK</span>
+    </a>
+    <div class="nav-right">
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+        <span class="icon-sun">☀</span><span class="icon-moon">☾</span>
+      </button>
+      <a href="{{ url_for('login') }}"    class="btn-outline-gold">Sign In</a>
+      <a href="{{ url_for('register') }}" class="btn-gold">Get Started</a>
+    </div>
+  </div>
+</nav>
+{% endif %}
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-stack">
+    {% for cat, msg in messages %}
+    <div class="flash flash-{{ cat }}">
+      <span>{{ msg }}</span>
+      <button class="flash-close" onclick="this.parentElement.remove()">✕</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+<main class="main-content {% if not session.get('account_id') %}main-landing{% endif %}">
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-left">
+      <div class="nav-brand" style="margin-bottom:0.35rem">
+        <span class="brand-crescent">☽</span>
+        <span class="brand-name">NUSUK</span>
+      </div>
+      <p class="footer-tagline">Sacred Journey Management Platform</p>
+    </div>
+    <div class="footer-center">
+      <p class="footer-arabic">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+      <p class="footer-trans">In the name of Allah, the Most Gracious, the Most Merciful</p>
+    </div>
+    <div class="footer-right">
+      <p class="footer-copy">© 2025 NUSUK Platform</p>
+      {% if session.get('account_id') %}
+      <p class="footer-copy" style="opacity:.4">Logged in as {{ session.get('role','') }}</p>
+      {% endif %}
+    </div>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Sign In{% endblock %}
+{% block content %}
+
+<div class="auth-page">
+  <div class="auth-card animate-fade-up">
+    <div class="auth-logo-area">
+      <span class="auth-crescent">☽</span>
+      <h1 class="auth-site-name">NUSUK</h1>
+      <p class="auth-tagline">Sacred Journey Platform</p>
+    </div>
+
+    <div class="auth-divider"></div>
+
+    <h2 class="auth-heading">Welcome Back</h2>
+    <p class="auth-sub">Sign in to continue your journey</p>
+
+    <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input class="form-control" type="email" id="email" name="email"
+               placeholder="you@example.com" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="input-wrapper">
+          <input class="form-control" type="password" id="password" name="password"
+                 placeholder="••••••••" required autocomplete="current-password">
+          <button type="button" class="input-eye" onclick="togglePassword('password', this)">👁</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-gold w-full" style="margin-top:1.5rem;justify-content:center;padding:.85rem">
+        Sign In
+      </button>
+    </form>
+
+    <div class="auth-separator"><span>Demo Credentials</span></div>
+    <div class="demo-creds">
+      <div class="demo-row" onclick="fillDemo('admin@nusuk.sa','Admin@Nusuk2025')">
+        <span class="role-badge role-admin">ADMIN</span>
+        <span>admin@nusuk.sa</span><span class="demo-hint">click to fill</span>
+      </div>
+      <div class="demo-row" onclick="fillDemo('analyst@nusuk.sa','Analyst@Nusuk2025')">
+        <span class="role-badge role-analyst">ANALYST</span>
+        <span>analyst@nusuk.sa</span><span class="demo-hint">click to fill</span>
+      </div>
+    </div>
+
+    <p class="auth-footer-link">
+      New pilgrim? <a href="{{ url_for('register') }}">Create an account →</a>
+    </p>
+  </div>
+</div>
+
+<script>
+function fillDemo(email, pw) {
+  document.getElementById('email').value = email;
+  document.getElementById('password').value = pw;
+}
+function togglePassword(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Permits Management{% endblock %}
+{% block content %}
+
+<div class="container page-wrapper">
+  <div class="page-header">
+    <div>
+      <p class="page-eyebrow">Administrator</p>
+      <h1>Permits Management</h1>
+      <p class="page-sub">{{ permits | length }} total permits</p>
+    </div>
+    <div class="filter-pills" id="statusFilter">
+      <button class="filter-pill active" data-status="all">All</button>
+      <button class="filter-pill" data-status="Active">Active</button>
+      <button class="filter-pill" data-status="Used">Used</button>
+      <button class="filter-pill" data-status="Expired">Expired</button>
+      <button class="filter-pill" data-status="Cancelled">Cancelled</button>
+    </div>
+  </div>
+
+  <div class="table-wrapper stagger-children">
+    <table id="permitsTable">
+      <thead><tr>
+        <th>Pilgrim</th><th>Passport</th><th>Holy Site</th><th>City</th>
+        <th>Slot Time</th><th>Type</th><th>Issue Date</th><th>Expiry</th>
+        <th>Status</th><th>Update</th>
+      </tr></thead>
+      <tbody>
+      {% for pm in permits %}
+      <tr data-status="{{ pm.status }}">
+        <td>{{ pm.first_name }} {{ pm.last_name }}</td>
+        <td class="mono">{{ pm.passport_number }}</td>
+        <td><strong>{{ pm.site_name }}</strong></td>
+        <td>{{ pm.city }}</td>
+        <td style="font-size:.82rem">
+          {{ pm.start_time.strftime('%d %b %Y %H:%M') if pm.start_time else '—' }}
+        </td>
+        <td><span class="permit-type-tag">{{ pm.permit_type }}</span></td>
+        <td>{{ pm.issue_date }}</td>
+        <td>{{ pm.expiry_date }}</td>
+        <td><span class="badge badge-{{ pm.status.lower() }}">{{ pm.status }}</span></td>
+        <td>
+          <form method="POST" action="{{ url_for('admin_update_permit', permit_id=pm.permit_id) }}"
+                style="display:flex;gap:.4rem;align-items:center">
+            <select name="status" class="form-control form-control-sm">
+              {% for st in ['Active','Used','Expired','Cancelled'] %}
+              <option value="{{ st }}" {% if pm.status==st %}selected{% endif %}>{{ st }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="btn-gold btn-sm">Save</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.filter-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    const status = pill.dataset.status;
+    document.querySelectorAll('#permitsTable tbody tr').forEach(row => {
+      row.style.display = (status === 'all' || row.dataset.status === status) ? '' : 'none';
+    });
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Hajj Progress{% endblock %}
+{% block content %}
+
+<div class="container page-wrapper">
+  <div class="page-header">
+    <div>
+      <p class="page-eyebrow">Administrator</p>
+      <h1>Hajj Phase Tracker</h1>
+      <p class="page-sub">Update each pilgrim's phase status in real time</p>
+    </div>
+  </div>
+
+  <div class="table-wrapper stagger-children">
+    <table>
+      <thead><tr>
+        <th>Pilgrim</th><th>Phase</th><th>Order</th>
+        <th>Status</th><th>Started</th><th>Completed</th><th>Update</th>
+      </tr></thead>
+      <tbody>
+      {% for hp in progress %}
+      <tr>
+        <td>{{ hp.first_name }} {{ hp.last_name }}</td>
+        <td><strong>{{ hp.phase_name }}</strong></td>
+        <td style="text-align:center">{{ hp.phase_order }}</td>
+        <td>
+          <span class="badge badge-{{
+            'active'      if hp.status == 'In_Progress' else
+            'completed'   if hp.status == 'Completed'   else
+            'cancelled'   if hp.status == 'Skipped'     else
+            'pending' }}">{{ hp.status.replace('_',' ') }}</span>
+        </td>
+        <td class="text-muted" style="font-size:.82rem">
+          {{ hp.started_at.strftime('%d %b %Y %H:%M') if hp.started_at else '—' }}
+        </td>
+        <td class="text-muted" style="font-size:.82rem">
+          {{ hp.completed_at.strftime('%d %b %Y %H:%M') if hp.completed_at else '—' }}
+        </td>
+        <td>
+          <form method="POST" action="{{ url_for('admin_update_hajj') }}"
+                style="display:flex;gap:.4rem;align-items:center">
+            <input type="hidden" name="progress_id" value="{{ hp.progress_id }}">
+            <select name="status" class="form-control form-control-sm">
+              {% for st in ['Scheduled','In_Progress','Completed','Skipped'] %}
+              <option value="{{ st }}" {% if hp.status==st %}selected{% endif %}>
+                {{ st.replace('_',' ') }}
+              </option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="btn-gold btn-sm">Save</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

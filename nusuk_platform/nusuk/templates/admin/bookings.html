@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Bookings Management{% endblock %}
+{% block content %}
+
+<div class="container page-wrapper">
+  <div class="page-header">
+    <div>
+      <p class="page-eyebrow">Administrator</p>
+      <h1>Bookings Management</h1>
+      <p class="page-sub">{{ bookings | length }} total bookings</p>
+    </div>
+    <!-- Status Filter -->
+    <div class="filter-pills" id="statusFilter">
+      <button class="filter-pill active" data-status="all">All</button>
+      <button class="filter-pill" data-status="Pending">Pending</button>
+      <button class="filter-pill" data-status="Confirmed">Confirmed</button>
+      <button class="filter-pill" data-status="Paid">Paid</button>
+      <button class="filter-pill" data-status="Completed">Completed</button>
+      <button class="filter-pill" data-status="Cancelled">Cancelled</button>
+    </div>
+  </div>
+
+  <div class="table-wrapper stagger-children">
+    <table id="bookingsTable">
+      <thead><tr>
+        <th>Reference</th><th>Pilgrim</th><th>Dates</th><th>Amount</th><th>Status</th><th>Booked</th><th>Update Status</th>
+      </tr></thead>
+      <tbody>
+      {% for bk in bookings %}
+      <tr data-status="{{ bk.status }}">
+        <td class="mono text-gold">{{ bk.booking_reference }}</td>
+        <td>
+          <div>{{ bk.first_name }} {{ bk.last_name }}</div>
+          <div class="text-muted" style="font-size:.78rem">{{ bk.email }}</div>
+        </td>
+        <td style="font-size:.85rem">
+          {{ bk.start_date }} → {{ bk.end_date }}
+        </td>
+        <td><strong>SAR {{ "%.2f"|format(bk.total_price) }}</strong></td>
+        <td><span class="badge badge-{{ bk.status.lower().replace(' ','_') }}">{{ bk.status }}</span></td>
+        <td class="text-muted" style="font-size:.82rem">
+          {{ bk.booking_date.strftime('%d %b %Y') if bk.booking_date else '—' }}
+        </td>
+        <td>
+          <form method="POST" action="{{ url_for('admin_update_booking', bid=bk.booking_id) }}"
+                style="display:flex;gap:.4rem;align-items:center">
+            <select name="status" class="form-control form-control-sm">
+              {% for st in ['Pending','Confirmed','Paid','In Progress','Completed','Cancelled'] %}
+              <option value="{{ st }}" {% if bk.status==st %}selected{% endif %}>{{ st }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="btn-gold btn-sm">Save</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// Status filter
+document.querySelectorAll('.filter-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    const status = pill.dataset.status;
+    document.querySelectorAll('#bookingsTable tbody tr').forEach(row => {
+      row.style.display = (status === 'all' || row.dataset.status === status) ? '' : 'none';
+    });
+  });
+});
+</script>
+{% endblock %}

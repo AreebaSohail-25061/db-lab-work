@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Create Account{% endblock %}
+{% block content %}
+
+<div class="auth-page auth-page-wide">
+  <div class="auth-card auth-card-wide animate-fade-up">
+    <div class="auth-logo-area">
+      <span class="auth-crescent">☽</span>
+      <h1 class="auth-site-name">NUSUK</h1>
+      <p class="auth-tagline">Register as a Pilgrim</p>
+    </div>
+
+    <div class="auth-divider"></div>
+
+    <h2 class="auth-heading">Create Your Account</h2>
+    <p class="auth-sub">All fields are required unless marked optional</p>
+
+    <form method="POST" action="{{ url_for('register') }}" class="auth-form">
+
+      <div class="section-label">Account Details</div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input class="form-control" type="text" name="username" placeholder="your_username" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-control" type="email" name="email" placeholder="you@example.com" required>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrapper">
+            <input class="form-control" type="password" id="pw1" name="password"
+                   placeholder="Min 8 characters" required minlength="8">
+            <button type="button" class="input-eye" onclick="togglePassword('pw1',this)">👁</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <div class="input-wrapper">
+            <input class="form-control" type="password" id="pw2" name="password_confirm"
+                   placeholder="Repeat password" required>
+            <button type="button" class="input-eye" onclick="togglePassword('pw2',this)">👁</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top:1.5rem">Personal Information</div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input class="form-control" type="text" name="first_name" placeholder="Ahmad" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input class="form-control" type="text" name="last_name" placeholder="Al-Rashidi" required>
+        </div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label class="form-label">Gender</label>
+          <select class="form-control" name="gender" required>
+            <option value="">Select…</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date of Birth</label>
+          <input class="form-control" type="date" name="date_of_birth" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone (optional)</label>
+          <input class="form-control" type="tel" name="phone_number" placeholder="+966 500 000 000">
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label">Passport Number</label>
+          <input class="form-control" type="text" name="passport_number" placeholder="A12345678" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nationality</label>
+          <select class="form-control" name="nationality_id" required>
+            <option value="">Select country…</option>
+            {% for n in nationalities %}
+            <option value="{{ n.nationality_id }}">{{ n.country_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="reg-terms">
+        <input type="checkbox" id="terms" required>
+        <label for="terms">I confirm all information is accurate and I accept the terms of the NUSUK platform.</label>
+      </div>
+
+      <button type="submit" class="btn-gold w-full" style="margin-top:1.5rem;justify-content:center;padding:.85rem">
+        Create Account
+      </button>
+    </form>
+
+    <p class="auth-footer-link">
+      Already registered? <a href="{{ url_for('login') }}">Sign in →</a>
+    </p>
+  </div>
+</div>
+
+<script>
+function togglePassword(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+document.querySelector('form').addEventListener('submit', function(e) {
+  const pw1 = document.getElementById('pw1').value;
+  const pw2 = document.getElementById('pw2').value;
+  if (pw1 !== pw2) { e.preventDefault(); alert('Passwords do not match.'); }
+});
+</script>
+{% endblock %}

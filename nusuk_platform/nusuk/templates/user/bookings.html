@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}My Bookings{% endblock %}
+{% block content %}
+
+<div class="container page-wrapper">
+  <div class="page-header">
+    <div>
+      <p class="page-eyebrow">Pilgrim Portal</p>
+      <h1>My Bookings</h1>
+    </div>
+    <button class="btn-gold" onclick="Modal.open('addBookingModal')">＋ New Booking</button>
+  </div>
+
+  <!-- Booking List -->
+  {% if bookings %}
+  <div class="bookings-list stagger-children">
+    {% for bk in bookings %}
+    <div class="booking-card">
+      <div class="bk-header">
+        <div class="bk-ref">{{ bk.booking_reference }}</div>
+        <span class="badge badge-{{ bk.status.lower().replace(' ','_') }}">{{ bk.status }}</span>
+      </div>
+      <div class="bk-body">
+        <div class="bk-meta-grid">
+          <div class="bk-meta-item">
+            <div class="bk-meta-label">Check-in</div>
+            <div class="bk-meta-val">{{ bk.start_date }}</div>
+          </div>
+          <div class="bk-meta-item">
+            <div class="bk-meta-label">Check-out</div>
+            <div class="bk-meta-val">{{ bk.end_date }}</div>
+          </div>
+          <div class="bk-meta-item">
+            <div class="bk-meta-label">Total Price</div>
+            <div class="bk-meta-val gold">SAR {{ "%.2f"|format(bk.total_price) }}</div>
+          </div>
+          <div class="bk-meta-item">
+            <div class="bk-meta-label">Booked On</div>
+            <div class="bk-meta-val">{{ bk.booking_date.strftime('%d %b %Y') if bk.booking_date else '—' }}</div>
+          </div>
+        </div>
+
+        <!-- Service Details -->
+        {% if bk.details %}
+        <div class="services-row">
+          {% for d in bk.details %}
+          <div class="service-chip">
+            {% if d.service_type == 'Hotel' %}🏨 {{ d.hotel_name or 'Hotel' }}
+            {% elif d.service_type == 'Transport' %}🚌 {{ d.company_name or 'Transport' }}
+            {% elif d.service_type == 'Guide' %}🧭 {{ d.first_name }} {{ d.last_name }}
+            {% else %}{{ d.service_type }}{% endif %}
+            <span class="chip-price">SAR {{ "%.0f"|format(d.subtotal) }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Rate (only for Completed) -->
+        {% if bk.status == 'Completed' and bk.details %}
+        <div class="rate-section">
+          <p class="rate-heading">Rate your services</p>
+          {% for d in bk.details %}
+            {% set svc_id = (d.hotel_id or d.provider_id or d.guide_id) %}
+            {% if svc_id and (d.service_type, svc_id) not in bk.rated %}
+            <form method="POST" action="{{ url_for('rate_service') }}" class="rate-form">
+              <input type="hidden" name="booking_id"   value="{{ bk.booking_id }}">
+              <input type="hidden" name="service_type" value="{{ d.service_type }}">
+              <input type="hidden" name="service_id"   value="{{ svc_id }}">
+              <div class="rate-row">
+                <span class="rate-svc-name">
+                  {% if d.service_type=='Hotel' %}🏨 {{ d.hotel_name }}
+                  {% elif d.service_type=='Transport' %}🚌 {{ d.company_name }}
+                  {% else %}🧭 {{ d.first_name }} {{ d.last_name }}{% endif %}
+                </span>
+                <div class="star-input" data-form="{{ loop.index }}_{{ bk.booking_id }}">
+                  {% for i in range(5,0,-1) %}
+                  <input type="radio" name="rating" id="s{{ i }}_{{ loop.index }}_{{ bk.booking_id }}" value="{{ i }}" required>
+                  <label for="s{{ i }}_{{ loop.index }}_{{ bk.booking_id }}">★</label>
+                  {% endfor %}
+                </div>
+                <input type="text" name="comment" class="form-control rate-comment" placeholder="Comment (optional)">
+                <button type="submit" class="btn-gold btn-sm">Submit</button>
+              </div>
+            </form>
+            {% elif svc_id %}
+            <div class="rate-done">
+              ✓ {{ d.service_type }} rated
+            </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state" style="margin-top:3rem">
+    <div class="empty-icon">📋</div>
+    <p>You have no bookings yet.</p>
+    <button class="btn-gold" onclick="Modal.open('addBookingModal')">Make Your First Booking</button>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Add Booking Modal -->
+<div class="modal-overlay" id="addBookingModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">🏨 New Booking</h3>
+      <button class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <form method="POST" action="{{ url_for('add_booking') }}" id="bookingForm">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">Check-in Date</label>
+            <input class="form-control" type="date" name="start_date" id="booking_start_date" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Check-out Date</label>
+            <input class="form-control" type="date" name="end_date" id="booking_end_date" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Hotel (optional)</label>
+          <select class="form-control" name="hotel_id">
+            <option value="">— No hotel —</option>
+            {% for h in hotels %}
+            <option value="{{ h.hotel_id }}">
+              {{ '★' * h.star_rating }} {{ h.hotel_name }} — {{ h.location_area }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Transport Provider (optional)</label>
+          <select class="form-control" name="provider_id">
+            <option value="">— No transport —</option>
+            {% for p in providers %}
+            <option value="{{ p.provider_id }}">{{ p.company_name }} ({{ p.service_type }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Guide (optional)</label>
+          <select class="form-control" name="guide_id">
+            <option value="">— No guide —</option>
+            {% for g in guides %}
+            <option value="{{ g.guide_id }}">
+              {{ g.first_name }} {{ g.last_name }} · {{ g.languages }} · ⭐ {{ g.rating_average }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="pricing-note">
+          <span>💡</span>
+          Indicative pricing: Hotel SAR 500/night · Transport SAR 200 · Guide SAR 300
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-outline-gold" onclick="Modal.close('addBookingModal')">Cancel</button>
+      <button type="submit" form="bookingForm" class="btn-gold">Confirm Booking</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

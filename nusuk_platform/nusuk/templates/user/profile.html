@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+
+<div class="container page-wrapper">
+  <div class="page-header">
+    <div>
+      <p class="page-eyebrow">Pilgrim Account</p>
+      <h1>My Profile</h1>
+    </div>
+    <span class="badge badge-{{ pilgrim.registration_status.lower() }}">{{ pilgrim.registration_status }}</span>
+  </div>
+
+  <div class="profile-grid stagger-children">
+
+    <!-- Personal Information -->
+    <div class="card profile-main">
+      <div class="profile-avatar-area">
+        <div class="profile-avatar">{{ pilgrim.first_name[0] }}{{ pilgrim.last_name[0] }}</div>
+        <div>
+          <h2 class="profile-name">{{ pilgrim.first_name }} {{ pilgrim.last_name }}</h2>
+          <p class="profile-nation">{{ pilgrim.country_name }} &nbsp;·&nbsp; {{ pilgrim.gender }}</p>
+        </div>
+      </div>
+
+      <div class="profile-fields">
+        <div class="profile-field">
+          <span class="pf-label">Email</span>
+          <span class="pf-value">{{ pilgrim.email }}</span>
+        </div>
+        <div class="profile-field">
+          <span class="pf-label">Phone</span>
+          <span class="pf-value">{{ pilgrim.phone_number or '—' }}</span>
+        </div>
+        <div class="profile-field">
+          <span class="pf-label">Passport</span>
+          <span class="pf-value mono">{{ pilgrim.passport_number }}</span>
+        </div>
+        <div class="profile-field">
+          <span class="pf-label">Date of Birth</span>
+          <span class="pf-value">{{ pilgrim.date_of_birth }}</span>
+        </div>
+        <div class="profile-field">
+          <span class="pf-label">Nationality</span>
+          <span class="pf-value">{{ pilgrim.country_name }}</span>
+        </div>
+        <div class="profile-field">
+          <span class="pf-label">Region</span>
+          <span class="pf-value">{{ pilgrim.region }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="profile-side">
+
+      <!-- Health Records -->
+      <div class="card">
+        <div class="card-header-row">
+          <h3 class="card-title"><span class="card-icon">💉</span> Health Records</h3>
+        </div>
+        {% if health_records %}
+        <div class="table-wrapper">
+          <table>
+            <thead><tr>
+              <th>Vaccine</th><th>Date</th><th>Expiry</th><th>Status</th>
+            </tr></thead>
+            <tbody>
+            {% for hr in health_records %}
+            <tr>
+              <td>{{ hr.vaccination_type }}</td>
+              <td>{{ hr.vaccination_date }}</td>
+              <td>{{ hr.expiry_date or '—' }}</td>
+              <td><span class="badge badge-{{ hr.verification_status.lower() }}">{{ hr.verification_status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <div class="empty-icon">💉</div>
+          <p>No health records on file. Contact admin to add vaccination records.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Visas -->
+      <div class="card">
+        <div class="card-header-row">
+          <h3 class="card-title"><span class="card-icon">📄</span> Visas</h3>
+        </div>
+        {% if visas %}
+        <div class="table-wrapper">
+          <table>
+            <thead><tr>
+              <th>Visa No.</th><th>Type</th><th>Issue</th><th>Expiry</th>
+            </tr></thead>
+            <tbody>
+            {% for v in visas %}
+            <tr>
+              <td class="mono">{{ v.visa_number }}</td>
+              <td><span class="badge badge-active">{{ v.visa_type }}</span></td>
+              <td>{{ v.issue_date }}</td>
+              <td>{{ v.expiry_date }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <div class="empty-icon">📄</div>
+          <p>No visa records found.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Special Needs -->
+      {% if special_needs %}
+      <div class="card">
+        <div class="card-header-row">
+          <h3 class="card-title"><span class="card-icon">♿</span> Special Needs</h3>
+        </div>
+        {% for sn in special_needs %}
+        <div class="special-need-item">
+          <div class="sn-top">
+            <span class="badge badge-{{ 'danger' if sn.severity in ('High','Critical') else 'pending' }}">{{ sn.severity }}</span>
+            <span class="sn-type">{{ sn.need_type.replace('_',' ') }}</span>
+          </div>
+          <p class="sn-desc">{{ sn.description }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    </div><!-- /profile-side -->
+  </div>
+</div>
+{% endblock %}

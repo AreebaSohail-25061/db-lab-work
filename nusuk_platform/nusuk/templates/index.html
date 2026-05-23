@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge animate-fade-up" style="animation-delay:0s">
+      <span>☽</span> Sacred Journey Platform
+    </div>
+
+    <h1 class="hero-logo animate-fade-up" style="animation-delay:.1s">NUSUK</h1>
+
+    <p class="hero-sub animate-fade-up" style="animation-delay:.2s">
+      The Complete Hajj &amp; Umrah Management System
+    </p>
+
+    <div class="hero-divider animate-fade-up" style="animation-delay:.3s"></div>
+
+    <!-- Quran Verse -->
+    <div class="hero-verse animate-fade-up" style="animation-delay:.4s">
+      <p class="hero-verse-arabic">{{ verse.arabic }}</p>
+      <p class="hero-verse-trans">{{ verse.translation }}</p>
+      <p class="hero-verse-ref">— {{ verse.reference }}</p>
+    </div>
+
+    <!-- CTA -->
+    <div class="hero-cta animate-fade-up" style="animation-delay:.55s">
+      <a href="{{ url_for('register') }}" class="btn-gold btn-lg">Begin Your Journey</a>
+      <a href="{{ url_for('login') }}"    class="btn-outline-gold btn-lg">Sign In</a>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="features-section">
+  <div class="container">
+    <div class="section-heading">
+      <p class="section-eyebrow">Everything You Need</p>
+      <h2>One Platform, Every Step of Your Journey</h2>
+    </div>
+
+    <div class="features-grid stagger-children">
+      <div class="feature-card">
+        <div class="feature-icon">🕌</div>
+        <h3 class="feature-title">Holy Site Permits</h3>
+        <p class="feature-desc">Reserve timed entry to Masjid al-Haram, Arafat, Mina, Jamarat and more — all in one place.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏨</div>
+        <h3 class="feature-title">Hotel &amp; Transport</h3>
+        <p class="feature-desc">Book 3–5 star accommodations near the Haram and reliable transport for your entire stay.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧭</div>
+        <h3 class="feature-title">Expert Guides</h3>
+        <p class="feature-desc">Choose from certified multilingual guides and track your Hajj phases step by step.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3 class="feature-title">Health &amp; Visa Records</h3>
+        <p class="feature-desc">Manage vaccinations, visas, and special needs documentation securely in your profile.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🕐</div>
+        <h3 class="feature-title">Prayer Times</h3>
+        <p class="feature-desc">Real-time Adhan times for your location, Makkah, and Madinah on every dashboard.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⭐</div>
+        <h3 class="feature-title">Rate Your Experience</h3>
+        <p class="feature-desc">After your journey, rate guides, hotels, and transport to help future pilgrims.</p>
+      </div>
+    </div>
+
+    <!-- Role Cards -->
+    <div class="role-cards stagger-children" style="margin-top:4rem">
+      <div class="role-card role-pilgrim">
+        <div class="role-card-icon">🤲</div>
+        <h3>Pilgrims</h3>
+        <p>Create an account, manage bookings, request permits, and track your spiritual journey.</p>
+        <a href="{{ url_for('register') }}" class="btn-gold btn-sm" style="margin-top:1rem">Register Now</a>
+      </div>
+      <div class="role-card role-admin">
+        <div class="role-card-icon">🛡️</div>
+        <h3>Administrators</h3>
+        <p>Full platform control — manage users, guides, holy sites, and all bookings end-to-end.</p>
+      </div>
+      <div class="role-card role-analyst">
+        <div class="role-card-icon">📊</div>
+        <h3>Analysts</h3>
+        <p>Read-only access to rich analytics — occupancy, revenue, nationality breakdowns, and more.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

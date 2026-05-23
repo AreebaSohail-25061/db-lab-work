@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}My Permits{% endblock %}
+{% block content %}
+
+<div class="container page-wrapper">
+  <div class="page-header">
+    <div>
+      <p class="page-eyebrow">Pilgrim Portal</p>
+      <h1>My Permits</h1>
+    </div>
+    <button class="btn-gold" onclick="Modal.open('requestPermitModal')">＋ Request Permit</button>
+  </div>
+
+  <!-- Current Permits -->
+  <div class="card-section-label">Issued Permits</div>
+  {% if permits %}
+  <div class="permits-list stagger-children">
+    {% for pm in permits %}
+    <div class="permit-card">
+      <div class="permit-left">
+        <div class="permit-site-name">{{ pm.site_name }}</div>
+        <div class="permit-city">{{ pm.city }}</div>
+        <div class="permit-slot">
+          🕐 {{ pm.start_time.strftime('%d %b %Y, %H:%M') if pm.start_time else '—' }}
+          → {{ pm.end_time.strftime('%H:%M') if pm.end_time else '—' }}
+        </div>
+      </div>
+      <div class="permit-right">
+        <span class="permit-type-tag">{{ pm.permit_type }}</span>
+        <span class="badge badge-{{ pm.status.lower() }}">{{ pm.status }}</span>
+        <div class="permit-dates">Valid: {{ pm.issue_date }} – {{ pm.expiry_date }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state" style="margin-top:2rem">
+    <div class="empty-icon">🎫</div>
+    <p>No permits yet. Request one from an available slot below.</p>
+    <button class="btn-gold" onclick="Modal.open('requestPermitModal')">Request a Permit</button>
+  </div>
+  {% endif %}
+
+  <!-- Available Slots Preview -->
+  {% if available_slots %}
+  <div class="card-section-label" style="margin-top:2.5rem">Available Time Slots</div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr>
+        <th>Holy Site</th><th>City</th><th>Date &amp; Time</th><th>Capacity</th><th>Available</th><th></th>
+      </tr></thead>
+      <tbody>
+      {% for sl in available_slots[:15] %}
+      <tr>
+        <td><strong>{{ sl.site_name }}</strong></td>
+        <td>{{ sl.city }}</td>
+        <td>{{ sl.start_time.strftime('%d %b %Y, %H:%M') if sl.start_time else '—' }}
+            – {{ sl.end_time.strftime('%H:%M') if sl.end_time else '—' }}</td>
+        <td>{{ sl.max_capacity | int }}</td>
+        <td>
+          <div class="mini-bar">
+            <div class="mini-bar-fill" style="width:{{ ((sl.max_capacity - sl.current_occupancy) / sl.max_capacity * 100)|int }}%"></div>
+          </div>
+          {{ (sl.max_capacity - sl.current_occupancy) | int }} left
+        </td>
+        <td>
+          <button class="btn-gold btn-sm"
+                  onclick="selectSlot({{ sl.slot_id }}, '{{ sl.site_name }}', '{{ sl.start_time }}')">
+            Reserve
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Request Permit Modal -->
+<div class="modal-overlay" id="requestPermitModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">🎫 Request a Permit</h3>
+      <button class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <form method="POST" action="{{ url_for('request_permit') }}" id="permitForm">
+        <div class="form-group">
+          <label class="form-label">Time Slot</label>
+          <select class="form-control" name="slot_id" id="slotSelect" required>
+            <option value="">Select a time slot…</option>
+            {% for sl in available_slots %}
+            <option value="{{ sl.slot_id }}">
+              {{ sl.site_name }} ({{ sl.city }}) —
+              {{ sl.start_time.strftime('%d %b %Y %H:%M') if sl.start_time else '—' }}
+              [{{ (sl.max_capacity - sl.current_occupancy)|int }} spots left]
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Permit Type</label>
+          <select class="form-control" name="permit_type" required>
+            <option value="Umrah">Umrah</option>
+            <option value="Hajj">Hajj</option>
+            <option value="Prayer">Prayer</option>
+          </select>
+        </div>
+        <div class="permit-info-box">
+          <span>ℹ️</span>
+          Permits are valid for 7 days from issue date. One permit per slot per day.
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-outline-gold" onclick="Modal.close('requestPermitModal')">Cancel</button>
+      <button type="submit" form="permitForm" class="btn-gold">Issue Permit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function selectSlot(slotId, siteName, time) {
+  document.getElementById('slotSelect').value = slotId;
+  Modal.open('requestPermitModal');
+}
+</script>
+{% endblock %}
